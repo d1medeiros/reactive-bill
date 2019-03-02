@@ -1,14 +1,13 @@
 package com.dmedeiros.reactivemvc.bill;
 
+import com.dmedeiros.reactivemvc.util.Util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Field;
 import java.time.*;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -16,11 +15,9 @@ import java.util.stream.Stream;
 public class BillService {
 
     private final BillRepository billRepository;
-    private final ApplicationEventPublisher publisher;
 
-    public BillService(BillRepository billRepository, ApplicationEventPublisher publisher) {
+    public BillService(BillRepository billRepository) {
         this.billRepository = billRepository;
-        this.publisher = publisher;
     }
 
     public Mono<Bill> findById(String id) {
@@ -44,14 +41,17 @@ public class BillService {
     }
 
     public Mono<Bill> update(BillUpdate billUpdate) {
-        Bill bill = Optional.ofNullable(billUpdate)
-                .filter(this::validate)
-                .map(this::copyProperties)
-                .orElseThrow(RuntimeException::new);
+        Bill bill = mapBillUpdate(billUpdate);
         return findById(bill.getId())
                 .map(b -> copyPropertiesWithFieldToIgnore(bill, b))
                 .flatMap(this::create);
+    }
 
+    private Bill mapBillUpdate(BillUpdate billUpdate) {
+        return Optional.ofNullable(billUpdate)
+                    .filter(this::validate)
+                    .map(this::copyProperties)
+                    .orElseThrow(RuntimeException::new);
     }
 
     private Bill copyPropertiesWithFieldToIgnore(Bill bill, Bill b) {
@@ -60,19 +60,8 @@ public class BillService {
     }
 
     private String[] propertiesToIgnore(Bill bill) {
-       return Stream.of(getFieldName(Bill.class))
-               .filter(s -> !containsInClassFields(s, BillUpdate.class))
-                .toArray(String[]::new);
-    }
-
-    private boolean containsInClassFields(String s, Class<?> c) {
-        return List.of(getFieldName(c)).contains(s);
-    }
-
-    private String[] getFieldName(Class<?> c) {
-        Field[] declaredFields = c.getDeclaredFields();
-        return Stream.of(declaredFields)
-                .map(Field::getName)
+       return Stream.of(Util.getFieldName(Bill.class))
+               .filter(s -> !Util.containsInClassFields(s, BillUpdate.class))
                 .toArray(String[]::new);
     }
 
