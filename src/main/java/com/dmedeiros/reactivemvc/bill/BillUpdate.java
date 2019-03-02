@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class BillUpdate {
+    private String id;
     private String name;
     private Double price;
     private LocalDateTime payday;

@@ -36,7 +36,6 @@ public class ReactiveMybillApplicationTests {
 				})
 				.map(Bill::getDateCreated).map(LocalDateTime::getMonth).map(Month::getValue);
 	}
-
 	private Flux<Bill> createBillFlux(int i) {
 		return Flux.range(1, i)
 				.map(integer -> Bill.builder()
@@ -52,11 +51,9 @@ public class ReactiveMybillApplicationTests {
 				})
 				.flatMap(billService::create);
 	}
-
 	private void createThreeBillFluxDateRandomWithTwoJanAndOneFeb() {
 		createBillFluxDateRandom(3).subscribe();
 	}
-
 	private Flux<Bill> createBillFluxDateRandom(int i) {
 		return Flux.range(1, i)
 				.map(integer -> {
@@ -76,7 +73,6 @@ public class ReactiveMybillApplicationTests {
 						}
 				).flatMap(billService::create);
 	}
-
 	private int getRandomMonthJanOrFeb(Integer integer) {
 		if (integer % 2 == 0) {
 			System.out.println("random mes 1");
@@ -86,7 +82,6 @@ public class ReactiveMybillApplicationTests {
 			return 2;
 		}
 	}
-
 	private void imp(Object... o) {
 		String collect = Stream.of(o).map(Object::toString).collect(Collectors.joining(" \n "));
 		System.out.println(collect);
