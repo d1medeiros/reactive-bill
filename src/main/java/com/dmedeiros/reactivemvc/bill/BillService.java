@@ -1,8 +1,10 @@
 package com.dmedeiros.reactivemvc.bill;
 
 import com.dmedeiros.reactivemvc.util.Util;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,19 +14,23 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
+@Log
 public class BillService {
 
     private final BillRepository billRepository;
 
+    @Autowired
     public BillService(BillRepository billRepository) {
         this.billRepository = billRepository;
     }
 
     public Mono<Bill> findById(String id) {
+        log.info("buscando contas por id");
         return this.billRepository.findById(id);
     }
 
     public Flux<Bill> findByMonth(int month) {
+        log.info("buscando contas por mes");
         LocalDate min = LocalDate.of(Year.now().getValue(), Month.of(month), 1);
         LocalDate max = LocalDate.of(Year.now().getValue(), Month.of(month), Month.of(month).minLength());
         LocalDateTime minMouth = LocalDateTime.of(min, LocalTime.MIN);
@@ -33,14 +39,17 @@ public class BillService {
     }
 
     public Flux<Bill> findAll() {
+        log.info("buscando todas as contas");
         return this.billRepository.findAll();
     }
 
     public Mono<Bill> create(Bill bill) {
+        log.info("criando uma nova conta");
         return this.billRepository.save(bill);
     }
 
     public Mono<Bill> update(BillUpdate billUpdate) {
+        log.info("atualizando uma conta");
         Bill bill = mapBillUpdate(billUpdate);
         return findById(bill.getId())
                 .map(b -> copyPropertiesWithFieldToIgnore(bill, b))

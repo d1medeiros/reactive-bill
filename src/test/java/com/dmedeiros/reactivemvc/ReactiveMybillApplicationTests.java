@@ -3,6 +3,7 @@ package com.dmedeiros.reactivemvc;
 import com.dmedeiros.reactivemvc.bill.Bill;
 import com.dmedeiros.reactivemvc.bill.BillRepository;
 import com.dmedeiros.reactivemvc.bill.BillService;
+import com.dmedeiros.reactivemvc.bill.BillUpdate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,6 +136,31 @@ public class ReactiveMybillApplicationTests {
 
 	}
 
+	@Test
+	public void updateABill() {
+		Flux<Bill> billFlux = createBillFlux(2);
+		billFlux.doOnComplete(() -> {
+			this.billService.findAll()
+			.doOnEach(b -> {
+				Bill bill = b.get();
+				System.out.println(bill);
+			}).subscribe();
+		}).subscribe();
+
+//		billFlux.map(bill -> {
+//			String coxinhaDeGalinha = "coxinha de galinha";
+//			return BillUpdate.builder()
+//					.id(bill.getId())
+//					.name(coxinhaDeGalinha)
+//					.payday(LocalDateTime.now().withMonth(6))
+//					.price(1.0)
+//					.build();
+//			}
+//		).flatMap(billUpdate -> this.billService.update(billUpdate))
+//		.subscribe();
+
+
+	}
 
 
 }
