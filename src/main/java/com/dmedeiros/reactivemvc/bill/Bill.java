@@ -1,9 +1,7 @@
 package com.dmedeiros.reactivemvc.bill;
 
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -21,10 +19,11 @@ public class Bill {
     private String name;
     private Double price;
     private LocalDateTime payday;
-    @CreatedDate
     private LocalDateTime dateCreated;
-    @LastModifiedDate
     private LocalDateTime lastUpdate;
 
 
 }
+//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+//    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

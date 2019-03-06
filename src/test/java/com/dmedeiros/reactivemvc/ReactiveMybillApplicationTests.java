@@ -11,11 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,6 +92,16 @@ public class ReactiveMybillApplicationTests {
 		String collect = Stream.of(o).map(Object::toString).collect(Collectors.joining(" \n "));
 		System.out.println(collect);
 	}
+	private BillUpdate getBillUpdate(Bill billMono) {
+
+		String coxinhaDeGalinha = "coxinha de galinha";
+		return BillUpdate.builder()
+				.id(billMono.getId())
+				.name(coxinhaDeGalinha)
+				.payday(LocalDateTime.now().withMonth(6))
+				.price(1.0)
+				.build();
+	}
 
 	@Before
 	public void init() {
@@ -96,17 +111,19 @@ public class ReactiveMybillApplicationTests {
 	@Test
 	public void initialTest() {
 		String[] strings = {"diego", "marina"};
-		StepVerifier.create(Flux.just(strings))
+
+		Flux<String> just = Flux.just(strings);
+		StepVerifier.create(just)
 				.expectNext(strings)
 				.expectComplete()
 				.verify();
 
-		StepVerifier.create(Flux.just(strings))
+		StepVerifier.create(just)
 				.expectNext("diego", "marina")
 				.expectComplete()
 				.verify();
 
-		StepVerifier.create(Flux.just(strings))
+		StepVerifier.create(just)
 				.expectNext("diego")
 				.expectNext("marina")
 				.expectComplete()
@@ -138,27 +155,23 @@ public class ReactiveMybillApplicationTests {
 
 	@Test
 	public void updateABill() {
-		Flux<Bill> billFlux = createBillFlux(2);
-		billFlux.doOnComplete(() -> {
-			this.billService.findAll()
-			.doOnEach(b -> {
-				Bill bill = b.get();
-				System.out.println(bill);
-			}).subscribe();
-		}).subscribe();
+		System.out.println("\n\n\n\n1- iniciando update bill");
+		Bill contaA = Bill.builder().dateCreated(LocalDateTime.now())
+				.lastUpdate(LocalDateTime.now())
+				.name("Conta A")
+				.payday(LocalDateTime.now())
+				.price(new Random().nextDouble() * 100)
+				.build();
+		System.out.println("aind NAO passou do block");
+		Bill billMono = Mono.just(contaA)
+				.log()
+				.flatMap(this.billService::create)
+				.block();
 
-//		billFlux.map(bill -> {
-//			String coxinhaDeGalinha = "coxinha de galinha";
-//			return BillUpdate.builder()
-//					.id(bill.getId())
-//					.name(coxinhaDeGalinha)
-//					.payday(LocalDateTime.now().withMonth(6))
-//					.price(1.0)
-//					.build();
-//			}
-//		).flatMap(billUpdate -> this.billService.update(billUpdate))
-//		.subscribe();
+		System.out.println("passou do block "+billMono.getId());
+		BillUpdate billUpdate = getBillUpdate(billMono);
 
+		this.billService.update(billUpdate);
 
 	}
 

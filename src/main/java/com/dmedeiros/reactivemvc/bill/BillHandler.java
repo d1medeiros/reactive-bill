@@ -1,6 +1,5 @@
 package com.dmedeiros.reactivemvc.bill;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -47,6 +46,12 @@ public class BillHandler {
         return request.bodyToMono(BillUpdate.class)
                 .flatMap(billService::update)
                 .flatMap(bill -> ServerResponse.noContent().build());
+    }
+
+    public Mono<ServerResponse> remove(ServerRequest request) {
+        String id = request.pathVariable("id");
+        this.billService.remove(id);
+        return ServerResponse.noContent().build();
     }
 
 

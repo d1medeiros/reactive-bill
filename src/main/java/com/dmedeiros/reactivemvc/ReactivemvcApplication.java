@@ -1,28 +1,29 @@
 package com.dmedeiros.reactivemvc;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import reactor.core.publisher.Flux;
 
-import java.util.Random;
 
 @SpringBootApplication
 public class ReactivemvcApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ReactivemvcApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ReactivemvcApplication.class, args);
+    }
 
 }
 
-class T{
-	public static void main(String[] args) {
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-		System.out.println(new Random().nextInt(2)+1);
-	}
+@Log4j2
+class T {
+    public static void main(String[] args) {
+        String[] strings = {"diego", "marina"};
+        Flux.just(strings)
+                .doOnNext(log::info)
+                .doOnComplete(() -> log.info("onComplete"))
+                .doOnTerminate(() -> log.info("doTerminate"))
+                .subscribe();
+
+    }
 }

@@ -2,7 +2,6 @@ package com.dmedeiros.reactivemvc.bill;
 
 import com.dmedeiros.reactivemvc.util.Util;
 import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,6 @@ public class BillService {
     }
 
     public Flux<Bill> findAll() {
-        log.info("buscando todas as contas");
         return this.billRepository.findAll();
     }
 
@@ -49,12 +47,17 @@ public class BillService {
     }
 
     public Mono<Bill> update(BillUpdate billUpdate) {
-        log.info("atualizando uma conta");
-        Bill bill = mapBillUpdate(billUpdate);
-        return findById(bill.getId())
-                .map(b -> copyPropertiesWithFieldToIgnore(bill, b))
+        System.out.println("atualizando uma conta");
+        Bill billFromUpdate = mapBillUpdate(billUpdate);
+        return findById(billFromUpdate.getId())
+                .map(bill -> copyPropertiesWithFieldToIgnore(billFromUpdate, bill))
                 .flatMap(this::create);
     }
+
+    public Mono<Void> remove(String id) {
+        return this.billRepository.deleteById(id);
+    }
+
 
     private Bill mapBillUpdate(BillUpdate billUpdate) {
         return Optional.ofNullable(billUpdate)
@@ -63,12 +66,12 @@ public class BillService {
                     .orElseThrow(RuntimeException::new);
     }
 
-    private Bill copyPropertiesWithFieldToIgnore(Bill bill, Bill b) {
-        BeanUtils.copyProperties(bill, b, propertiesToIgnore(bill));
-        return b;
+    private Bill copyPropertiesWithFieldToIgnore(Bill billFromUpdate, Bill bill) {
+        BeanUtils.copyProperties(billFromUpdate, bill, propertiesToIgnore());
+        return bill;
     }
 
-    private String[] propertiesToIgnore(Bill bill) {
+    private String[] propertiesToIgnore() {
        return Stream.of(Util.getFieldName(Bill.class))
                .filter(s -> !Util.containsInClassFields(s, BillUpdate.class))
                 .toArray(String[]::new);
